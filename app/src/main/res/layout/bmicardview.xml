@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/checkbox"
     android:layout_width="match_parent"
     android:layout_height="120dp"
     android:clickable="true"
@@ -21,7 +22,7 @@
             android:layout_height="match_parent"
             android:orientation="horizontal"
             tools:layout_editor_absoluteX="5dp"
-            tools:layout_editor_absoluteY="5dp" >
+            tools:layout_editor_absoluteY="5dp">
 
             <TextView
                 android:id="@+id/bmitextview"
@@ -34,18 +35,16 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <Button
-                android:id="@+id/button"
+            <CheckBox
+                android:id="@+id/checkBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="96dp"
-                android:text="Button"
+                android:text="CheckBox"
+
                 app:layout_constraintBottom_toBottomOf="@+id/bmitextview"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/bmitextview"
-                app:layout_constraintTop_toTopOf="@+id/bmitextview"
-                app:layout_constraintVertical_bias="0.482" />
+                app:layout_constraintTop_toTopOf="@+id/bmitextview" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
