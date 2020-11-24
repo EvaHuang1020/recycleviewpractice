@@ -63,7 +63,8 @@ public class MainActivity extends AppCompatActivity {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.bmicardview, parent, false);
             ViewHolder vh = new ViewHolder(v);
 
-
+//            vh.checkBox.setChecked(false);
+//            vh.checkBox.setClickable(false);
             vh.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -94,11 +95,12 @@ public class MainActivity extends AppCompatActivity {
             if (Float.parseFloat(mbmi.get(position)) > 50) {
 
                 holder.showbmi.setTextColor(Color.rgb(255, 0, 0));
-
+                holder.checkBox.setEnabled(false);
 
             }
             else {
                 holder.showbmi.setTextColor(Color.rgb(0, 0, 0));
+                holder.checkBox.setEnabled(true);
 
             }
 
