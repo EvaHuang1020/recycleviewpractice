@@ -13,10 +13,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,66 +42,79 @@ public class MainActivity extends AppCompatActivity {
     public List<String> fakebmi;
     public List<Boolean> bmibig50;
     public MyAdapter myAdapter;
-    public OkHttpClient client ;
+    public OkHttpClient client;
     public ExecutorService service;
+    public ArrayList idlist;
+    public List<Fireitem> FireItemList= new ArrayList<>();
+    GlobalVariable gv;
+    Gson gson;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        gson = new Gson();
 
         mRecycleview = findViewById(R.id.mReycleview);
-        fakebmi = new ArrayList<>();
+        idlist = new ArrayList<>();
         bmibig50 = new ArrayList<>();
 
         client = new OkHttpClient();
         service = Executors.newSingleThreadExecutor();
-        myAdapter = new MyAdapter(fakebmi);
 
         mRecycleview.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
-        mRecycleview.setAdapter(myAdapter);
-        GlobalVariable gv = (GlobalVariable) getApplicationContext();
-        Toast.makeText(getApplicationContext(),"Username:"+gv.getUsername()+"Token"+gv.getToken(),Toast.LENGTH_SHORT).show();
 
+        gv = (GlobalVariable) getApplicationContext();
+        Toast.makeText(getApplicationContext(), "Username:" + gv.getUsername() + "Token" + gv.getToken(), Toast.LENGTH_SHORT).show();
 
 
         service.submit(new Runnable() {
             @Override
+
             public void run() {
 
-                Request request = new Request.Builder().url("http://140.133.78.44:63914/Selectitembyplace/Selectitembyplace?item_place=265-Y9&Token="+gv.getToken()).build();
+                Request request = new Request.Builder().url("http://140.133.78.44:63914/Selectitembyplace/Selectitembyplace?item_place=265-Y9&Token=" + gv.getToken()).build();
                 try {
                     final Response response = client.newCall(request).execute();
                     final String resStr = response.body().string();
                     JSONObject jsonObject = new JSONObject(resStr);
-                        String username = jsonObject.getString("UserName");
-                        String token =  jsonObject.getString("Token");
-                  Log.e("名稱",username);
-                  Log.e("Token",token);
+                    String newToken = jsonObject.getString("NewToken");
+                    gv.setToken(newToken);
+
+                    FireItemList = gson.fromJson(jsonObject.getString("JsonResult"), new TypeToken<List<Fireitem>>() {
+                    }.getType());//將json字串直接轉換為FireitemList
+                    Log.e("長度", FireItemList.size() + "");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            myAdapter = new MyAdapter(FireItemList);
+                            mRecycleview.setAdapter(myAdapter);
+                        }
+                    });
 
 
+//                  Log.e("名稱",username);
+//                  Log.e("Token",token);
 
 
                 } catch (JSONException e) {
-                    Log.e("json錯誤",e.getMessage());
+                    Log.e("json錯誤", e.getMessage());
                 } catch (IOException e) {
-                Log.e("錯誤",e.getMessage());
+                    Log.e("錯誤", e.getMessage());
                 }
             }
         });
-
-
-
 
 
     }
 
 
     public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
-        private List<String> mbmi;
+        private List<Fireitem> mfireitemList;
 
-        public MyAdapter(List<String> bmi) {
-            mbmi = bmi;
+        public MyAdapter(List<Fireitem> fireitemList) {
+           this. mfireitemList = fireitemList;
         }
 
 
@@ -107,32 +123,20 @@ public class MainActivity extends AppCompatActivity {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.bmicardview, parent, false);
             ViewHolder vh = new ViewHolder(v);
 
-//            vh.checkBox.setChecked(false);
-//            vh.checkBox.setClickable(false);
-            vh.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
 
-                    int position = vh.getAdapterPosition();
-
-                    bmibig50.set(position, !bmibig50.get(position));
-                    vh.checkBox.setChecked(bmibig50.get(position));
-
-
-                }
-            });
             return vh;
         }
 
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position) {
+            Fireitem fireitem = mfireitemList.get(position);
+            holder.text_item_id.setText(fireitem.item_id);
 
-            holder.text_item_id.setText(mbmi.get(position));
-
-
-//            holder.item_id.setText(item_id);
-//            holder.item_name.setText(nameSet.get(item_id));
+            holder.text_item_name.setText(fireitem.item_name);
+            holder.text_item_status.setText(fireitem.item_status);
+            holder.text_item_area.setText(fireitem.item_area);
+            holder.checkBox.setChecked(fireitem.ischeck);
 //            holder.checkBox.setVisibility(View.GONE);
 
 
@@ -141,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return mbmi.size();
+            return mfireitemList.size();
         }
 
 //        @Override
