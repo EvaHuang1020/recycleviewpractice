@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     public OkHttpClient client;
     public ExecutorService service;
     public ArrayList idlist;
-    public List<Fireitem> FireItemList= new ArrayList<>();
+    public List<Fireitem> FireItemList = new ArrayList<>();
     GlobalVariable gv;
     Gson gson;
 
@@ -63,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
         service = Executors.newSingleThreadExecutor();
 
         mRecycleview.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
+        myAdapter = new MyAdapter();
+        mRecycleview.setAdapter(myAdapter);
 
         gv = (GlobalVariable) getApplicationContext();
         Toast.makeText(getApplicationContext(), "Username:" + gv.getUsername() + "Token" + gv.getToken(), Toast.LENGTH_SHORT).show();
@@ -82,14 +84,14 @@ public class MainActivity extends AppCompatActivity {
                     String newToken = jsonObject.getString("NewToken");
                     gv.setToken(newToken);
 
+
                     FireItemList = gson.fromJson(jsonObject.getString("JsonResult"), new TypeToken<List<Fireitem>>() {
                     }.getType());//將json字串直接轉換為FireitemList
                     Log.e("長度", FireItemList.size() + "");
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            myAdapter = new MyAdapter(FireItemList);
-                            mRecycleview.setAdapter(myAdapter);
+                            myAdapter.notifyDataSetChanged();
                         }
                     });
 
@@ -111,10 +113,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
-        private List<Fireitem> mfireitemList;
 
-        public MyAdapter(List<Fireitem> fireitemList) {
-           this. mfireitemList = fireitemList;
+
+        public MyAdapter() {
+
         }
 
 
@@ -130,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position) {
-            Fireitem fireitem = mfireitemList.get(position);
+            Fireitem fireitem = FireItemList.get(position);
             holder.text_item_id.setText(fireitem.item_id);
 
             holder.text_item_name.setText(fireitem.item_name);
@@ -145,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return mfireitemList.size();
+            return FireItemList.size();
         }
 
 //        @Override
